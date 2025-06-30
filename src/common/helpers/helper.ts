@@ -1,6 +1,5 @@
-import { ForbiddenException, InternalServerErrorException, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { RpcException } from "@nestjs/microservices";
-import { AxiosResponse } from "axios";
+
 
 const fs = require('fs').promises;
 var jwt = require('jsonwebtoken');
@@ -9,10 +8,14 @@ var jwt = require('jsonwebtoken');
 
 
 
-
 export function handlerError(err: any) {
   let exception_info;
-  switch (err.status) {
+  let custom_error = err;
+  if( err.error.status ) {
+    custom_error = err.error;
+  }
+
+  switch (custom_error.status) {
     case 404:
       exception_info = { status: 404, message: err.statusText }
       break
@@ -29,7 +32,6 @@ export function handlerError(err: any) {
   throw new RpcException(exception_info)
 
 }
-
 
 
 export function addDays(date: string, days) {

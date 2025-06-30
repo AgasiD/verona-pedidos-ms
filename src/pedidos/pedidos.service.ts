@@ -9,6 +9,7 @@ import { NATS_SERVICE } from "src/config/services";
 import { firstValueFrom } from "rxjs";
 import { CreatePedidoDTO } from "./dto/pedido.dto";
 import { PedidosRepository } from "./repository/pedidos.repository";
+import { Usuario } from "src/common/entities/usuarios/usuario.entity";
 @Injectable()
 export class PedidosService {
 
@@ -30,8 +31,8 @@ export class PedidosService {
   async getUsuariosByRole(roles: number[]) {
     return await firstValueFrom(this.client.send('usuarios.obtenerUsuariosByRole', roles))
   }
-  async getUsuario(usuarioId: string) {
-    return await firstValueFrom(this.client.send('usuarios.obtenerUsuario', { usuarioId }))
+  async getUsuario(usuarioId: string){
+    return (await firstValueFrom(this.client.send('usuarios.obtenerUsuario', { usuarioId })) as Usuario)
   }
 
 
@@ -151,7 +152,7 @@ export class PedidosService {
       let user = (await this.getUsuario(pedidoDTO.idUsuario))!
       pedido.usuario = { nombre: user.nombre, apellido: user.apellido, fullname: user.fullName };
       let data = await this.grabarPedido(pedido);
-      await firstValueFrom(this.client.emit(`obras.agregarPedido`, { idObra: pedido.idObra, pedidoId: data.id }));
+      const response = await firstValueFrom(this.client.send(`obras.agregarPedido`, { idObra: pedido.idObra, pedidoId: data.id }));
       return data;
     } catch (err) {
       handlerError(err)
@@ -184,7 +185,7 @@ export class PedidosService {
   async grabarPedido(pedido: Pedido) {
     await this.obtenerPedidos();
     if (!this.existePedido(pedido.id)) {
-      const pedido_response = this.pedidosRepository.create(pedido)
+      const pedido_response = await this.pedidosRepository.create(pedido)
       return pedido_response;
     } else {
       throw new RpcException({ status: HttpStatus.CONFLICT, message: `Pedido existente.` })
@@ -300,6 +301,10 @@ export class PedidosService {
     let pedidos = await this.obtenerPedidos({ incluye_cerrados });
     let pedidos_filtrados = pedidos.filter(p => ids.includes(p.id)) || [];
     if (!incluye_cerrados) pedidos_filtrados.filter(pedido => pedido.estado != ESTADOS.CERRADO)
+
+    pedidos_filtrados.sort( (a,b) => {
+      return a.ts > b.ts ? 1 : -1
+    })
     return pedidos_filtrados
 
   }
