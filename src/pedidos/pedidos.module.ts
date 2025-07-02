@@ -9,5 +9,6 @@ import { PedidosRepository } from './repository/pedidos.repository';
   controllers: [PedidosController],
   providers: [HttpService, PedidosService, PedidosRepository],
   imports: [NatsModule]
+  
 })
 export class PedidosModule {}
