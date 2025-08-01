@@ -18,6 +18,11 @@ export class PedidosRepository {
     }
 
     async findOne(pedidoId: string) {
+        if (this.pedidos) {
+            await this.findAll(); // Ensure pedidos are loaded
+            let pedido = this.pedidos.find(pedido => pedido.id == pedidoId);
+            if (pedido) return pedido;
+        }
         let response = await this.http.get(`${this.uri}/${pedidoId}.json`);
         if (response.status >= 300) throw new RpcException({ status: response.status, message: response.statusText });
 
@@ -27,6 +32,8 @@ export class PedidosRepository {
     }
 
     async findAll() {
+        if(this.pedidos) return this.pedidos;
+
         let response = await this.http.get(`${this.uri}.json`);
         if (response.status >= 300) throw new RpcException({ status: response.status, message: response.statusText });
 
