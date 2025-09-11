@@ -183,11 +183,13 @@ export class PedidosService {
 
 
   async grabarPedido(pedido: Pedido) {
+    
     await this.obtenerPedidos();
     if (!this.existePedido(pedido.id)) {
       const pedido_response = await this.pedidosRepository.create(pedido)
       return pedido_response;
     } else {
+      console.log(pedido)
       throw new RpcException({ status: HttpStatus.CONFLICT, message: `Pedido existente.` })
     }
   }
@@ -231,6 +233,8 @@ export class PedidosService {
   }
 
   existePedido(nombre) {
+    console.log('id o nombre de pedido')
+    console.log(nombre)
 
     return this.pedidos.findIndex(x => x.titulo == nombre || x.id == nombre) > -1;
   }
