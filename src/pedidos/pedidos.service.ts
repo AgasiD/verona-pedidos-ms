@@ -147,10 +147,12 @@ export class PedidosService {
 
   private async agregarPedido(pedidoDTO: CreatePedidoDTO) {
     try {
+      console.log(pedidoDTO)
       pedidoDTO.titulo = pedidoDTO.titulo.replace('/', '-');
       let pedido = new Pedido(null, pedidoDTO);
       let user = (await this.getUsuario(pedidoDTO.idUsuario))!
       pedido.usuario = { nombre: user.nombre, apellido: user.apellido, fullname: user.fullName };
+      console.log(pedido)
       let data = await this.grabarPedido(pedido);
       const response = await firstValueFrom(this.client.send(`obras.agregarPedido`, { idObra: pedido.idObra, pedidoId: data.id }));
       return data;
