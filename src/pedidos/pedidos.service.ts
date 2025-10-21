@@ -187,7 +187,7 @@ export class PedidosService {
   async grabarPedido(pedido: Pedido) {
     
     await this.obtenerPedidos();
-    if (!this.existePedido(pedido.id)) {
+    if (!this.existePedido(pedido.titulo)) {
       const pedido_response = await this.pedidosRepository.create(pedido)
       return pedido_response;
     } else {
