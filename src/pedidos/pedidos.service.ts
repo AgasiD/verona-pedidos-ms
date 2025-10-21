@@ -238,7 +238,7 @@ export class PedidosService {
     console.log('id o nombre de pedido')
     console.log(nombre)
 
-    return this.pedidos.findIndex(x => x.titulo == nombre || x.id == nombre) > -1;
+    return this.pedidos.findIndex(x => (x.titulo == nombre || x.id == nombre ) && x.estado < 5) > -1;
   }
 
 
